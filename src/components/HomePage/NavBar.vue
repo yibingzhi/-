@@ -31,7 +31,7 @@
             trigger="hover"
         >
           <template #reference>
-            <el-button class="m-2">通知</el-button>
+            <el-button class="m-1">通知</el-button>
           </template>
         </el-popover>
 
@@ -45,11 +45,9 @@
             trigger="hover"
         >
           <template #reference>
-            <el-button class="m-2">私信</el-button>
+            <el-button class="m-1">私信</el-button>
           </template>
         </el-popover>
-
-
         <el-popover
 
             :width="200"
@@ -59,7 +57,7 @@
             trigger="hover"
         >
           <template #reference>
-            <el-button class="m-2">投稿</el-button>
+            <el-button class="m-1">投稿</el-button>
           </template>
         </el-popover>
       </div>
@@ -88,21 +86,26 @@
     </el-dialog>
 
     <el-popover
-        :width="300"
+        :width="150"
         placement="top-start"
         trigger="hover"
+
     >
       <template #reference>
 
-        <el-avatar v-if=" userStore.isLogin" :size="50" :src="circleUrl" style="margin: 0 3vh"/>
+        <el-avatar v-if="userStore.isLogin" :size="50" :src=" userStore.user.data.avatarUrl || circleUrl"
+                   style="margin: 0 3vh"/>
       </template>
       <template #default>
-        <el-button class="m-2">个人中心</el-button>
-        <el-button class="m-2">个人中心</el-button>
-        <el-button class="m-2">个人中心</el-button>
-        <el-button class="m-2">个人中心</el-button>
-        <el-button class="m-2">个人中心</el-button>
-        111111111111111111111111
+        <el-row :justify="'center'" style="background-color: pink">
+          <el-col span="20" style="">
+            <el-button class="m-2" @click="$router.push(`/user/${userStore.user.data.userId}`)">个人中心</el-button>
+            <el-button class="m-2">我的喜欢</el-button>
+            <el-button class="m-2">我的收藏</el-button>
+            <el-button class="m-2">历史记录</el-button>
+            <el-button class="m-2">退出登录</el-button>
+          </el-col>
+        </el-row>
       </template>
     </el-popover>
 
@@ -142,7 +145,7 @@ async function userLogin() {
     console.log(res)
     userStore.user = res
 
-    console.log("----------------------")
+    console.log("----------------------====================================")
     console.log(userStore.user)
     console.log(userStore.user.data.userId)
     console.log("----------------------")
@@ -180,6 +183,13 @@ async function userLogin() {
 <style>
 .el-menu--horizontal > .el-menu-item:nth-child(1) {
   margin-right: auto;
+}
+
+.m-2 {
+  width: 80%;
+  margin: 1vh;
+  height: 40px;
+
 }
 
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <el-row :gutter="20" style="height: 95vh;">
+  <el-row v-if="!isLoading" :gutter="20" style="height: 95vh;">
     <el-col :span="16">
       <VideoPlayer :Video_information="videoinformation" style="height: 97%"></VideoPlayer>
     </el-col>
@@ -9,12 +9,16 @@
           <el-row :align="'middle'" :gutter="20">
             <el-col :span="18">
               <el-link style="font-size: 150%">
-                @翌冰之
+                @{{ videoinformation.title }}
               </el-link>
               <div style="margin-top: 2vh">
-                <span>{{ videoinformation.value?.followers || 0 }}粉丝</span>
-                <el-divider direction="vertical"></el-divider>
-                <span>{{ videoinformation.value?.likes || 0 }}获赞</span>
+                <el-text>{{ videoinformation.value?.followers || 0 }}粉丝</el-text>
+
+                <el-divider direction="vertical"/>
+                <el-text style="margin: 0 20px">{{
+                    videoinformation?.likeCount || 0
+                  }}获赞
+                </el-text>
               </div>
             </el-col>
             <el-col :span="4">
@@ -23,10 +27,12 @@
           </el-row>
           <el-divider></el-divider>
           <el-scrollbar height="74vh">
-            <el-row :justify="'center'">
-              <el-image v-for="item in videoinformation.value?.relatedVideos || 100" :key="item.id" :fit="'fill'"
-                        :src="item.coverUrl"
-                        style="width: 17vh; height: 22vh; margin: 0.5vh; border-radius: 10px"/>
+            <el-row :justify="'space-around'">
+              <el-image v-for="item in userVideoList|| 0" :key="item.id" :fit="'fill'"
+                        :src="item.coverImagePath"
+                        style="width: 18vh; height: 24vh; margin: 0.5vh; border-radius: 10px; cursor: pointer;"
+                        @click.native="$router.push({ name: 'video', params: { videoId: item.videoId } })    "
+              />
             </el-row>
           </el-scrollbar>
 
@@ -43,15 +49,21 @@
 </template>
 
 <script lang="ts" setup>
-import {onMounted, ref} from 'vue'
+import {onMounted, ref, watch} from 'vue'
 import type {TabsPaneContext} from 'element-plus'
 import MediaList from "../components/MediaList.vue";
 import CommentSection from "../components/CommentSection.vue";
 import VideoPlayer from "../components/VideoPlayer.vue";
 import videoApi from "../api/videoApi";
+import {useRoute} from "vue-router";
 
+const isLoading = ref(true);
+const route = useRoute();
+const videoId = route.params.videoId; // 获取查询参数
 const activeName = ref('first')
 const videoinformation = ref({})
+
+const userVideoList = ref([])
 
 const handleClick = (tab: TabsPaneContext, event: Event) => {
   console.log(tab, event)
@@ -60,15 +72,29 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
 
 onMounted(async () => {
   try {
-    const response = await videoApi.getVideoDetails({videoId: 2});
+    const response = await videoApi.getVideoDetails({videoId: videoId});
     videoinformation.value = response;
-    console.log("-------------------------------+++++++++++")
-    console.log(videoinformation)
-    console.log("-------------------------------+++++++++++")
+    isLoading.value = false;
+    console.log(response)
+  } catch (error) {
+    console.error('Failed to fetch video details:', error);
+  }
+  try {
+    const response = await videoApi.getVideoListByAuthorId({creatorId: videoinformation.value.creatorId});
+    userVideoList.value = response.data;
+    console.log(response.data)
   } catch (error) {
     console.error('Failed to fetch video details:', error);
   }
 })
+
+
+watch(() => route.path, (newPath, oldPath) => {
+  console.log('Route changed from', oldPath, 'to', newPath);
+  // 这里可以调用你的数据获取方法
+  window.location.reload();
+
+});
 
 const url = 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg'
 </script>

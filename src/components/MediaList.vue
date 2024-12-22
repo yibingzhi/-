@@ -4,11 +4,9 @@
   <el-scrollbar height="90vh">
     <slot></slot>
     <el-row :justify="'space-around'">
-      <el-col v-for="i in 20" :span="7">
-
-        <router-link style=" text-decoration: none;" to="/video">
-          <MediaShowcase></MediaShowcase>
-
+      <el-col v-for="i in VideoList " :span="6">
+        <router-link :to="{ name: 'video', params: { videoId: i.videoId } }" style=" text-decoration: none;">
+          <MediaShowcase :video="i"></MediaShowcase>
         </router-link>
       </el-col>
 
@@ -21,9 +19,19 @@ import MediaShowcase from "./MediaShowcase.vue";
 import {useRoute} from "vue-router";
 import {ref, watch} from "vue";
 
-
 const route = useRoute();
 const currentPath = ref(route.path); // 当前路由路径
+
+const props = defineProps({
+  VideoList: {
+    type: Array,
+    required: true
+  }
+});
+
+// console.log("---------------------")
+// console.log(props.VideoList)
+// console.log("---------------------")
 
 // 监听路由变化
 watch(route, (to, from) => {

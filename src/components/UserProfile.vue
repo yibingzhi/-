@@ -1,12 +1,11 @@
 <template>
   <!--  个人信息组件-->
-
   <el-row :align="'middle'" :gutter="20" :justify="'center'" style="height: 20vh;">
     <el-col :span="4" style="">
-      <el-avatar :size="100" :src="circleUrl"/>
+      <el-avatar :size="100" :src=" user.avatarUrl  || circleUrl"/>
     </el-col>
     <el-col :span="12" style="">
-      <h3>翌冰之</h3>
+      <h3>{{ user.nickname }}</h3>
       <div>
         <span>关注：1000</span>
         <el-divider direction="vertical"/>
@@ -37,7 +36,7 @@
 
     <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
       <el-tab-pane label="作品" name="first" style="display:flex;">
-        <MediaList></MediaList>
+        <MediaList :VideoList="VideoList"></MediaList>
       </el-tab-pane>
       <el-tab-pane label="喜欢" name="second">
 
@@ -60,29 +59,38 @@ import {useRoute} from "vue-router";
 import type {TabsPaneContext} from 'element-plus'
 
 import userApi from "../api/userApi"
+import videoApi from "../api/videoApi"
 
 
-const user = ref();
+const user = ref({});
 const route = useRoute()
-
-const circleUrl = ref('http://117.72.100.74:8080/index.php?action=file&file=%E5%A4%B4%E5%83%8F%2F%E7%94%B7%E5%A4%B4%2Fphoto_2024-11-26_20-10-33.jpg')
+const circleUrl = ref('http://117.72.100.74/index.php?action=file&file=%E5%A4%B4%E5%83%8F%2F%E7%94%B7%E5%A4%B4%2Fphoto_2024-11-26_20-10-33.jpg')
 
 const activeName = ref('first')
 
+const VideoList = ref<[]>([])
+
 onMounted(async () => {
+  try {
+    const res = await userApi.getUserInfo({userId: route.params.userId});
+    user.value = res.data
+    // console.log(user.value)
+    // console.log(user.value.avatarUrl)
+  } catch (error) {
+  }
 
-  // 假设从某个 API 获取用户数据
-  user.value = await userApi.getUserInfo({userId: route.params.userId})
+  try {
+    const res = await videoApi.getVideoListByAuthorId({creatorId: route.params.userId});
+    VideoList.value = res.data
+    // console.log(VideoList.value)
+  } catch (error) {
+  }
+});
 
-  console.log("---------------------------------")
-  console.log(user.value)
-  console.log("---------------------------------")
-})
 
 const handleClick = (tab: TabsPaneContext, event: Event) => {
   console.log(tab, event)
 }
-
 
 </script>
 

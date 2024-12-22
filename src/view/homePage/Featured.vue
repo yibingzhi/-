@@ -1,6 +1,6 @@
 <template>
   <!--  精选页面-->
-  <MediaList>
+  <MediaList :VideoList="VideoList">
 
     <el-carousel indicator-position="outside" style="height: 20vh;">
       <el-carousel-item v-for="item in 3" :key="item" style="display: flex;justify-content: center">
@@ -13,8 +13,29 @@
 </template>
 
 <script lang="ts" setup>
-
 import MediaList from "../../components/MediaList.vue";
+import {onMounted, ref} from "vue";
+import type {TabsPaneContext} from "element-plus";
+import videoApi from "../../api/videoApi"
+
+const VideoList = ref<[]>([])
+
+onMounted(async () => {
+
+  try {
+    const res = await videoApi.getAuditedVideos();
+    VideoList.value = res.data
+    console.log(VideoList.value)
+  } catch (error) {
+  }
+});
+
+
+const handleClick = (tab: TabsPaneContext, event: Event) => {
+  console.log(tab, event)
+}
+
+
 </script>
 
 

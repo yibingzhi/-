@@ -3,7 +3,7 @@
   <div class="nav">
     <div ref="dplayerContainer" class="vedio"></div>
     <el-row class="hudong" style="position: absolute; z-index: 1; top: 40vh; right: 2vh; display: block">
-      <el-avatar :size="50" :src="circleUrl" class="child"/>
+      <el-avatar :size="50" :src="userInfo ? userInfo.data.avatarUrl : circleUrl" class="child"/>
       <div v-for="(button, index) in buttons" :key="index" class="child">
         <el-button type="primary" @click="handleButtonClick(button.action)">{{ button.label }}</el-button>
       </div>
@@ -14,10 +14,12 @@
 <script setup>
 import {onBeforeUnmount, onMounted, ref, watch} from 'vue';
 import DPlayer from 'dplayer';
+import userApi from "../api/userApi.js";
 
 // 定义一个ref来存储DPlayer实例
 const dplayerContainer = ref(null);
 const dplayerInstance = ref(null);
+const userInfo = ref(null);
 
 // 头像URL
 const circleUrl = ref('https://bugugu.oss-cn-beijing.aliyuncs.com/20241030/img/cover/1730266350013fdc3caa0ab14428986a78229f40806a6.jpg');
@@ -50,13 +52,15 @@ const buttons = [
   {label: '分享', action: 'share'}
 ];
 
+
 // 处理按钮点击事件
 const handleButtonClick = (action) => {
   // 这里可以添加按钮点击后的逻辑
   console.log(action);
 };
 
-onMounted(() => {
+onMounted(async () => {
+
   // 初始化DPlayer实例
   dplayerInstance.value = new DPlayer({
     container: dplayerContainer.value,
@@ -69,11 +73,17 @@ onMounted(() => {
       // pic: 'https://yibz-bugu.oss-cn-beijing.aliyuncs.com/20241220/images/e6e4f990ad1d4d75b4e32afb8821b8be.jpg',
     },
     danmaku: {
+      user: props.Video_information.nickname || '布谷',
       id: props.Video_information.videoId || '1', // 使用视频的ID
       // id: '1', // 使用视频的ID
       api: 'http://localhost:1207/', // 后端获取弹幕列表的接口路径
     }
   });
+
+  console.log(props.Video_information.videoId)
+  console.log(props.Video_information)
+  console.log(props.Video_information.creatorId)
+  userInfo.value = await userApi.getUserInfo({userId: props.Video_information.creatorId})
 });
 
 // 暴露方法给父组件

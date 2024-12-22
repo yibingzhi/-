@@ -56,7 +56,9 @@ const routes = [
         ]
     },
     {
-        path: '/video',
+        path: '/video/:videoId',
+        name: 'video',
+        props: true,// 或自定义函数
         component: VideoPage
     },
     {

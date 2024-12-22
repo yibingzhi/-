@@ -58,7 +58,8 @@ const isScrolling = ref(false);
 async function getVideo() {
   try {
     const response = await api.videoApi.getAuditedVideos();
-    Video_informations.value = response;
+    Video_informations.value = response.data;
+    console.log(response);
   } catch (error) {
   }
 }

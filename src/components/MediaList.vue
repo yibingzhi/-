@@ -5,9 +5,7 @@
     <slot></slot>
     <el-row :justify="'space-around'">
       <el-col v-for="i in VideoList " :span="6">
-        <router-link :to="{ name: 'video', params: { videoId: i.videoId } }" style=" text-decoration: none;">
-          <MediaShowcase :video="i"></MediaShowcase>
-        </router-link>
+        <MediaShowcase :video="i"></MediaShowcase>
       </el-col>
 
     </el-row>

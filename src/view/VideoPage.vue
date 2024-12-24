@@ -8,7 +8,7 @@
         <el-tab-pane label="Ta的作品" name="first">
           <el-row :align="'middle'" :gutter="20">
             <el-col :span="18">
-              <el-link style="font-size: 150%">
+              <el-link :href="'/User/' + videoinformation.creatorId" class="mx-1" style="font-size: 150%">
                 @{{ videoinformation.title }}
               </el-link>
               <div style="margin-top: 2vh">
@@ -38,7 +38,7 @@
 
         </el-tab-pane>
         <el-tab-pane label="评论" name="second">
-          <CommentSection></CommentSection>
+          <CommentSection :videoId="videoId"></CommentSection>
         </el-tab-pane>
         <el-tab-pane label="相关推荐" name="third">
           <MediaList></MediaList>
@@ -75,14 +75,14 @@ onMounted(async () => {
     const response = await videoApi.getVideoDetails({videoId: videoId});
     videoinformation.value = response;
     isLoading.value = false;
-    console.log(response)
+    // console.log(response)
   } catch (error) {
-    console.error('Failed to fetch video details:', error);
+    // console.error('Failed to fetch video details:', error);
   }
   try {
     const response = await videoApi.getVideoListByAuthorId({creatorId: videoinformation.value.creatorId});
     userVideoList.value = response.data;
-    console.log(response.data)
+    // console.log(response.data)
   } catch (error) {
     console.error('Failed to fetch video details:', error);
   }

@@ -3,7 +3,7 @@
   <div class="nav">
     <div ref="dplayerContainer" class="vedio"></div>
     <el-row class="hudong" style="position: absolute; z-index: 1; top: 40vh; right: 2vh; display: block">
-      <el-avatar :size="50" :src="userInfo ? userInfo.data.avatarUrl : circleUrl" class="child"/>
+      <el-avatar :size="50" :src="userInfo ? userInfo.data.avatarUrl : circleUrl" class="child" @click="() => {}"/>
       <div v-for="(button, index) in buttons" :key="index" class="child">
         <el-button type="primary" @click="handleButtonClick(button.action)">{{ button.label }}</el-button>
       </div>
@@ -65,6 +65,7 @@ onMounted(async () => {
   dplayerInstance.value = new DPlayer({
     container: dplayerContainer.value,
     screenshot: true,
+    autoplay: true,
     muted: true,    // 静音
     video: {
       url: props.Video_information.videoFilePath || 'https://yibz-bugu.oss-cn-beijing.aliyuncs.com/videos/170bda0c-5fdc-4009-8af1-e2f287eda253.mp4',
@@ -80,9 +81,9 @@ onMounted(async () => {
     }
   });
 
-  console.log(props.Video_information.videoId)
-  console.log(props.Video_information)
-  console.log(props.Video_information.creatorId)
+  // console.log(props.Video_information.videoId)
+  // console.log(props.Video_information)
+  // console.log(props.Video_information.creatorId)
   userInfo.value = await userApi.getUserInfo({userId: props.Video_information.creatorId})
 });
 

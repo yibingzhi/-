@@ -7,20 +7,27 @@
                   width: 35vh;
                   border-radius: 20px;
                   margin: 10px;">
-    <video ref="myVideo"
-           :poster="props.video.coverImagePath "
-           loop
-           @mouseout="pauseVideo"
-           @mouseover="playVideo">
-      <source
-          :src="props.video.videoFilePath"
-          type="video/mp4">
-    </video>
+
+
+    <router-link :to="{ name: 'video', params: { videoId: props.video.videoId } }" style=" text-decoration: none;">
+      <video ref="myVideo"
+             :poster="props.video.coverImagePath "
+             loop
+             @mouseout="pauseVideo"
+             @mouseover="playVideo">
+        <source
+            :src="props.video.videoFilePath"
+            type="video/mp4">
+      </video>
+    </router-link>
 
     <template #footer>
       <el-col>
         <el-text class="mx-1" size="large" style="display: block">{{ props.video.description }}</el-text>
-        <el-link class="mx-1" href="/UserProfile" style="margin-top: 1px">@{{ props.video.title }}</el-link>
+        <el-link :href="'/User/' + props.video.creatorId" class="mx-1" style="margin-top: 1px;">
+          @{{ props.video.title }}
+        </el-link>
+
       </el-col>
     </template>
 

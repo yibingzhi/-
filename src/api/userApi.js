@@ -14,8 +14,13 @@ const userApi = {
         return http.get('/user/getUserById', {params: params});
     },
 
-    register(data) {
-        return http.post('user/register', data);
+    register(data, params) {
+        return http.post('user/register', data, {params: params});
+    },
+
+
+    getEmailCode(params) {
+        return http.get('/user/getEmailCode', {params: params})
     }
     // 其他用户相关的API
 };

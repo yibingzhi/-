@@ -51,7 +51,11 @@ const routes = [
 
                 path: '/xxx',
                 component: xunigundong
-            }
+            },
+            {
+                path: '/video/User/:userId',
+                component: UserProfile
+            },
 
         ]
     },
@@ -60,6 +64,7 @@ const routes = [
         name: 'video',
         props: true,// 或自定义函数
         component: VideoPage
+
     },
     {
         path: '/video2',

@@ -1,7 +1,7 @@
 <template>
   <el-row v-if="!isLoading" :gutter="20" style="height: 95vh;">
     <el-col :span="16">
-      <VideoPlayer :Video_information="videoinformation" style="height: 97%"></VideoPlayer>
+      <VideoPlayer2 :Video_information="videoinformation" style="height: 97%"></VideoPlayer2>
     </el-col>
     <el-col :span="8">
       <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
@@ -53,9 +53,9 @@ import {onMounted, ref, watch} from 'vue'
 import type {TabsPaneContext} from 'element-plus'
 import MediaList from "../components/MediaList.vue";
 import CommentSection from "../components/CommentSection.vue";
-import VideoPlayer from "../components/VideoPlayer.vue";
 import videoApi from "../api/videoApi";
 import {useRoute} from "vue-router";
+import VideoPlayer2 from "../components/VideoPlayer2.vue";
 
 const isLoading = ref(true);
 const route = useRoute();

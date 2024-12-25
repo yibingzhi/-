@@ -29,6 +29,7 @@
     >
       <!-- 传递视频播放状态和ID，监听视频加载、暂停和播放事件 -->
       <VideoPlayer
+
           :Video_information="video"
           :isPlaying="currentIndex === index"
           :videoId="video.id"

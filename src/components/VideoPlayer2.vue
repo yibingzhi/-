@@ -1,18 +1,20 @@
 <template>
   <!-- 视频组件 -->
   <el-row>
-    <el-col :span="isComment ? 16 : 24" class="nav">
-      <div ref="dplayerContainer" class="vedio"></div>
-      <el-row class="hudong" style="position: absolute; z-index: 1; top: 40vh; right: 2vh; display: block">
-        <el-avatar :size="50" :src="userInfo ? userInfo.data.avatarUrl : circleUrl" class="child" @click="() => {}"/>
-        <div v-for="(button, index) in buttons" :key="index" class="child">
-          <el-button type="primary" @click="handleButtonClick(button.action)">{{ button.label }}</el-button>
-        </div>
+    <el-col :sapn="5">
+      <el-row class="nav">
+        <el-col>
+          <div ref="dplayerContainer" class="vedio"></div>
+          <el-row class="hudong" style="position: absolute; z-index: 1; top: 40vh; right: 2vh; display: block">
+            <!--            <el-avatar :size="50" :src="userInfo ? userInfo.data.avatarUrl : circleUrl" class="child"-->
+            <!--                       @click="() => {}"/>-->
+            <!--            <div v-for="(button, index) in buttons" :key="index" class="child">-->
+            <!--              <el-button type="primary" @click="handleButtonClick(button.action)">{{ button.label }}</el-button>-->
+            <!--            </div>-->
+          </el-row>
+        </el-col>
+        <el-col></el-col>
       </el-row>
-    </el-col>
-
-    <el-col v-if="isComment" :span="8">
-      <CommentSection :videoId="props.Video_information.videoId"></CommentSection>
     </el-col>
 
 
@@ -23,13 +25,11 @@
 import {onBeforeUnmount, onMounted, ref, watch} from 'vue';
 import DPlayer from 'dplayer';
 import userApi from "../api/userApi.js";
-import CommentSection from "./CommentSection.vue";
 
 // 定义一个ref来存储DPlayer实例
 const dplayerContainer = ref(null);
 const dplayerInstance = ref(null);
 const userInfo = ref(null);
-const isComment = ref(false);
 
 // 头像URL
 const circleUrl = ref('https://bugugu.oss-cn-beijing.aliyuncs.com/20241030/img/cover/1730266350013fdc3caa0ab14428986a78229f40806a6.jpg');
@@ -67,11 +67,7 @@ const buttons = [
 const handleButtonClick = (action) => {
   // 这里可以添加按钮点击后的逻辑
   console.log(action);
-  if (action === 'comment') {
-    isComment.value = !isComment.value;
-  }
 };
-
 
 onMounted(async () => {
 
@@ -105,20 +101,14 @@ onMounted(async () => {
 const play = () => {
   if (dplayerInstance.value) {
     dplayerInstance.value.play();
-
   }
 };
 const pause = () => {
   if (dplayerInstance.value) {
     dplayerInstance.value.pause();
-
   }
 };
-const onComment = () => {
-  isComment.value = false;
-};
-
-defineExpose({play, pause, onComment});
+defineExpose({play, pause});
 
 // 在组件卸载时销毁DPlayer实例
 onBeforeUnmount(() => {
@@ -132,6 +122,7 @@ onBeforeUnmount(() => {
 @import url('https://cdn.jsdelivr.net/npm/dplayer/dist/DPlayer.min.css');
 
 .nav {
+  background-color: pink;
   max-height: 100%;
   max-width: 100%;
   height: 90vh;

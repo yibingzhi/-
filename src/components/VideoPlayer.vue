@@ -8,7 +8,19 @@
         <div v-for="(button, index) in buttons" :key="index" class="child">
           <el-button type="primary" @click="handleButtonClick(button.action)">{{ button.label }}</el-button>
         </div>
+
+
       </el-row>
+      <el-col style="position: absolute;  top: 70vh;left: 10vh;">
+        <el-col>
+          <el-link :href="'/User/' + props.Video_information.creatorId"
+                   style="color: white; font-size: 20px;display: block">
+            @ {{ userInfo?.data?.nickname || '布谷' }}
+          </el-link>
+        </el-col>
+
+        <el-text style="" type="primary">{{ props.Video_information.description }}</el-text>
+      </el-col>
     </el-col>
 
     <el-col v-if="isComment" :span="8">
@@ -20,16 +32,23 @@
 </template>
 
 <script setup>
-import {onBeforeUnmount, onMounted, ref, watch} from 'vue';
+import {computed, onBeforeUnmount, onMounted, ref, watch} from 'vue';
 import DPlayer from 'dplayer';
 import userApi from "../api/userApi.js";
 import CommentSection from "./CommentSection.vue";
+import likeApi from "../api/likeRecoreApi.js";
+import {useUserStore} from "../stores/userStore.js";
+import VideoFavoitesApi from "../api/VideoFavoitesApi.js";
+import {ElMessage} from "element-plus";
+
+
+const userSrore = useUserStore();
 
 // 定义一个ref来存储DPlayer实例
 const dplayerContainer = ref(null);
 const dplayerInstance = ref(null);
 const userInfo = ref(null);
-const isComment = ref(false);
+
 
 // 头像URL
 const circleUrl = ref('https://bugugu.oss-cn-beijing.aliyuncs.com/20241030/img/cover/1730266350013fdc3caa0ab14428986a78229f40806a6.jpg');
@@ -55,19 +74,34 @@ watch(() => props.Video_information.videoFilePath, (newValue) => {
 });
 
 // 按钮列表
-const buttons = [
-  {label: '点赞', action: 'like'},
+const likeButton = ref(true)
+const isComment = ref(false);
+const favoriteButton = ref(true);
+const buttons = ref([
+  {label: computed(() => likeButton.value ? '点赞' : '已点赞'), action: 'like'},
   {label: '评论', action: 'comment'},
-  {label: '收藏', action: 'favorite'},
+  {label: computed(() => favoriteButton.value ? '收藏' : '已收藏'), action: 'favorite'},
   {label: '分享', action: 'share'}
-];
+]);
 
 
 // 处理按钮点击事件
 const handleButtonClick = (action) => {
   // 这里可以添加按钮点击后的逻辑
-  console.log(action);
   if (action === 'comment') {
+    isComment.value = !isComment.value;
+  }
+  if (action === 'like') {
+    likeButton.value ? likeVideo(userSrore.user.data.userId, props.Video_information.videoId) : unlikeVideo(userSrore.user.data.userId, props.Video_information.videoId);
+
+
+  }
+  if (action === 'favorite') {
+
+    favoriteButton.value ? favorites(userSrore.user.data.userId, props.Video_information.videoId) : unfavorites(userSrore.user.data.userId, props.Video_information.videoId);
+
+  }
+  if (action === 'share') {
     isComment.value = !isComment.value;
   }
 };
@@ -95,11 +129,113 @@ onMounted(async () => {
     }
   });
 
-  // console.log(props.Video_information.videoId)
-  // console.log(props.Video_information)
-  // console.log(props.Video_information.creatorId)
   userInfo.value = await userApi.getUserInfo({userId: props.Video_information.creatorId})
+
+
+  await isUserLikedVideo(userSrore.user.data.userId, props.Video_information.videoId)
+  await isUserfavoriteVideo(props.Video_information.videoId)
 });
+
+const likeVideo = async (userId, videoId) => {
+
+  try {
+    const rsp = await likeApi.likeVideo({
+      userId: userId,
+      videoId: videoId
+    })
+    if (rsp.code === 200) {
+      likeButton.value = false
+      ElMessage.success("点赞成功")
+      return
+    }
+    ElMessage.error("点赞失败")
+
+  } catch (e) {
+
+    // ElMessage.error('未知错误')
+  }
+}
+const unlikeVideo = async (userId, videoId) => {
+  try {
+    const rsp = await likeApi.unlikeVideo({
+      userId: userId,
+      videoId: videoId
+    })
+    if (rsp.code === 200) {
+      likeButton.value = true
+      ElMessage.success("取消点赞成功")
+      return
+    }
+    ElMessage.error("取消点赞失败")
+
+  } catch (e) {
+
+    ElMessage.error('未知错误')
+  }
+}
+const isUserLikedVideo = async (userId, videoId) => {
+  try {
+    const rsp = await likeApi.isUserLikedVideo({
+      userId: userId,
+      videoId: videoId
+    })
+    // console.log(rsp)
+    likeButton.value = !rsp.data;
+  } catch (e) {
+
+    // ElMessage.error('未知错误')
+  }
+}
+const favorites = async (userId, videoId) => {
+  try {
+    const rsp = await VideoFavoitesApi.addFavorite({
+      userId: userId,
+      videoId: videoId
+    })
+    if (rsp.code === 200) {
+      favoriteButton.value = false
+      ElMessage.success("收藏成功")
+    }
+
+
+  } catch (e) {
+
+    // ElMessage.error('未知错误')
+  }
+}
+const unfavorites = async (userId, videoId) => {
+  try {
+    const rsp = await VideoFavoitesApi.removeFavorite({
+      userId: userId,
+      videoId: videoId
+    })
+    if (rsp.code === 200) {
+      favoriteButton.value = true
+      ElMessage.success("取消收藏成功")
+      return
+    }
+
+
+  } catch (e) {
+
+    // ElMessage.error('未知错误')
+  }
+}
+const isUserfavoriteVideo = async (videoId) => {
+  try {
+    const rsp = await VideoFavoitesApi.isVideoFavorited({
+      userId: userSrore.user.data.userId,
+      videoId: videoId
+    })
+
+    favoriteButton.value = !rsp.data;
+
+  } catch (e) {
+
+    // ElMessage.error('未知错误')
+  }
+}
+
 
 // 暴露方法给父组件
 const play = () => {

@@ -10,7 +10,10 @@ import mediaList from "./components/MediaList.vue";
 import UserProfile from "./components/UserProfile.vue";
 import AiPage from "./view/AiPage.vue";
 import xunigundong from "./view/homePage/xunigundong.vue";
-import Video from "./components/Video.vue";
+
+import CreatorPage from "./view/Creator/CreatorPage.vue";
+import GuanZhuGuanLi from "./view/Creator/GuanZhuGuanLi.vue";
+import FaBuShiPin from "./view/Creator/FaBuShiPin.vue";
 
 
 const routes = [
@@ -66,10 +69,7 @@ const routes = [
         component: VideoPage
 
     },
-    {
-        path: '/video2',
-        component: Video
-    },
+
     {
         path: '/search',
         component: SearchResults
@@ -78,6 +78,26 @@ const routes = [
         path: '/UserProfile',
         component: UserProfile
     },
+    {
+        path: '/creator',
+        name: 'creator',
+        component: CreatorPage,
+        children:
+            [
+
+                {
+                    path: '/creator/fabu',
+                    name: 'fabu',
+                    component: FaBuShiPin,
+                },
+                {
+                    path: '/creator/guanzhu',
+                    name: 'guanzhu',
+                    component: GuanZhuGuanLi,
+                },
+            ]
+
+    }
 ]
 
 const router = createRouter({

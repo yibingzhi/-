@@ -57,7 +57,7 @@
             trigger="hover"
         >
           <template #reference>
-            <el-button class="m-1">投稿</el-button>
+            <el-button class="m-1" @click="router.push('/creator')">投稿</el-button>
           </template>
         </el-popover>
       </div>

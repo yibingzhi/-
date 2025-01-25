@@ -1,6 +1,6 @@
 <template>
   <div @keyup.enter="handleEnter">
-    <u-chat :config="config" style="width: 500px" @submit="submit" @load-more="loadMore">
+    <u-chat :config="config" style="width: 100%" @submit="submit" @load-more="loadMore">
       <template #header>
         <div style="height: 40px; display: flex; align-items: center;">
           <div>聊天</div>
@@ -16,6 +16,9 @@ import {reactive} from 'vue';
 import {ChatApi, ChatConfigApi, usePage} from 'undraw-ui';
 import axios from 'axios';
 import emoji from '../assets/emoji';
+import {useUserStore} from "../stores/userStore";
+
+const userStore = useUserStore();
 
 const PAGE_SIZE = 4;
 
@@ -30,6 +33,16 @@ const config = reactive<ChatConfigApi>({
 });
 
 const data = [
+  {
+    id: 1,
+    content: '您好，我是小布谷 有什么可以帮助您的吗？',
+    uid: 2,
+    user: {
+      username: '小布谷',
+      avatar: 'https://static.juzicon.com/images/image-231107185110-DFSX.png'
+    },
+    createTime: '2024-05-27 09:01:00'
+  }
   // 消息数据
 ];
 
@@ -60,8 +73,8 @@ async function submit(val: string, finish: Function) {
     content: val,
     uid: 1,
     user: {
-      username: '党卓橦',
-      avatar: 'https://static.juzicon.com/images/image-231107185110-DFSX.png'
+      username: userStore.user.data.nickname,
+      avatar: userStore.user.data.avatarUrl,
     },
     createTime: new Date().toISOString()
   };

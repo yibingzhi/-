@@ -1,136 +1,151 @@
 <template>
-  <div class="chat-container">
-    <div class="chat-header">聊天</div>
-    <div class="chat-content">
-      <div v-for="message in messages" :key="message.id" class="chat-message">
-        <div class="user-info">
-          <img :src="message.user.avatar" alt="avatar" class="avatar"/>
-          <span class="username">{{ message.user.username }}</span>
-        </div>
-        <div class="message-content">
-          <p>{{ message.content }}</p>
-          <span class="timestamp">{{ message.createTime }}</span>
-        </div>
+  <!-- u-chat 组件用于显示聊天界面 -->
+  <u-chat :config="config" style="width: 500px" @submit="submit" @load-more="loadMore">
+    <!-- 自定义头部插槽 -->
+    <template #header>
+      <div style="height: 40px; display: flex; align-items: center;">
+        <div>聊天</div>
       </div>
-    </div>
-    <div class="chat-input">
-      <el-input
-          v-model="newMessage"
-          class="input-field"
-          placeholder="请输入内容"
-          @keyup.enter="sendMessage"
-      />
-      <el-button type="primary" @click="sendMessage">发送</el-button>
-    </div>
-  </div>
+    </template>
+  </u-chat>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      newMessage: '',
-      messages: [
-        {
-          id: 1,
-          content: '你好!',
-          uid: 2,
-          user: {
-            username: '用户1',
-            avatar: 'https://via.placeholder.com/40',
-          },
-          createTime: '06-29 09:10',
-        },
-        // 添加更多消息对象...
-      ],
+<script lang="ts" setup>
+import {onMounted, reactive, ref} from 'vue';
+import {ChatApi, ChatConfigApi, usePage} from 'undraw-ui';
+import emoji from '../assets/emoji';
+import {useUserStore} from "../stores/userStore";
+
+
+const userStore = useUserStore();
+
+// 定义消息的接口，描述消息的结构
+interface Message {
+  uid: string;
+  content: string;
+  userId: string;
+}
+
+// WebSocket 连接对象
+const socket = ref<WebSocket | null>(null);
+
+// 初始化聊天配置
+const config = reactive<ChatConfigApi>({
+  user: {
+    // 当前用户信息
+    id: 1,
+    username: userStore.user.data.nickname,
+    avatar: 'https://static.juzicon.com/images/image-180327173755-IELJ.jpg'
+  },
+  // 聊天数据数组
+  data: [],
+  // 表情包数据
+  emoji: emoji // 可选
+});
+
+// 模拟聊天数据
+let data = [
+  // ... 您的初始数据
+];
+
+// 生成随机延迟的函数，模拟网络延迟
+function getRandom(min: number, max: number) {
+  return Math.round(Math.random() * (max - min) + min);
+}
+
+// 用于分页加载更多数据的变量
+let n = 0;
+
+// 加载更多消息的函数
+function loadMore(finish: Function) {
+  if (n <= Math.ceil(data.length / 4)) {
+    // 模拟加载更多数据的延迟
+    setTimeout(() => {
+      // 使用 usePage 函数进行分页
+      finish(usePage(++n, 4, data));
+    }, getRandom(200, 500));
+  } else {
+    // 没有更多消息时，传入空数组
+    finish([]);
+  }
+}
+
+// 在组件挂载时初始化WebSocket连接
+onMounted(() => {
+  connectWebSocket();
+});
+
+// 建立WebSocket连接的函数
+function connectWebSocket() {
+  // 获取WebSocket连接
+  socket.value = new WebSocket('ws://localhost:8080/channel/echo?userId=6');
+
+  // 连接打开时触发
+  socket.value.onopen = () => {
+    console.log('WebSocket 连接已打开');
+  };
+
+  // 接收到消息时触发
+  socket.value.onmessage = (event: MessageEvent) => {
+    // 解析接收到的消息
+    const message = JSON.parse(event.data) as Message;
+    // 构造聊天消息对象
+    const chat: ChatApi = {
+      content: message.content,
+      uid: parseInt(message.uid),
+      user: {
+        // 根据消息的uid动态设置用户名和头像
+        username: `用户${message.uid}`,
+        avatar: message.uid === '6' ? 'https://static.juzicon.com/images/image-180327173755-IELJ.jpg' : 'https://static.juzicon.com/images/image-231107185110-DFSX.png'
+      },
+      createTime: new Date().toLocaleString()
     };
-  },
-  methods: {
-    sendMessage() {
-      if (this.newMessage.trim() !== '') {
-        const newMsg = {
-          id: Date.now(),
-          content: this.newMessage,
-          uid: 1,
-          user: {
-            username: '用户1',
-            avatar: 'https://via.placeholder.com/40',
-          },
-          createTime: new Date().toLocaleString(),
-        };
-        this.messages.push(newMsg);
-        this.newMessage = '';
-      }
-    },
-  },
-};
+    // 将消息添加到聊天数据中
+    config.data.push(chat);
+  };
+
+  // 连接关闭时触发
+  socket.value.onclose = () => {
+    console.log('WebSocket 连接已关闭');
+  };
+
+  // 发生错误时触发
+  socket.value.onerror = (error: Event) => {
+    console.log('WebSocket 错误:', error);
+  };
+}
+
+// 提交消息的函数
+function submit(val: string, finish: Function) {
+  // 检查WebSocket连接是否存在且消息内容不为空
+  if (socket.value && val.trim() !== '') {
+    // 构造发送的消息对象
+    const message: Message = {
+      uid: '6',
+      content: val,
+      userId: '5'
+    };
+    // 通过WebSocket发送消息
+    socket.value.send(JSON.stringify(message));
+
+    // 本地添加发送的消息
+    const chat: ChatApi = {
+      content: val,
+      uid: 1, // 这里修正为与发送消息的uid一致
+      user: {
+        username: userStore.user.data.nickname,
+        avatar: userStore.user.data.avatarUrl
+      },
+      createTime: new Date().toLocaleString()
+    };
+    // 将消息添加到聊天数据中
+    config.data.push(chat);
+    // 调用finish函数，告知提交操作完成
+    finish(chat);
+  }
+}
 </script>
 
-<style scoped>
-.chat-container {
-  width: 400px;
-  border: 1px solid #ddd;
-  display: flex;
-  flex-direction: column;
-}
-
-.chat-header {
-  background-color: #f5f5f5;
-  padding: 10px;
-  font-weight: bold;
-}
-
-.chat-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 10px;
-}
-
-.chat-message {
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 10px;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  margin-right: 10px;
-}
-
-.avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  margin-right: 10px;
-}
-
-.username {
-  font-weight: bold;
-}
-
-.message-content {
-  background-color: #e0f7fa;
-  padding: 10px;
-  border-radius: 10px;
-  position: relative;
-}
-
-.timestamp {
-  font-size: 0.8em;
-  color: #888;
-  margin-top: 5px;
-}
-
-.chat-input {
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  background-color: #f5f5f5;
-}
-
-.input-field {
-  flex: 1;
-  margin-right: 10px;
-}
+<!-- 样式部分 -->
+<style lang="scss" scoped>
 </style>

@@ -14,6 +14,7 @@ import xunigundong from "./view/homePage/xunigundong.vue";
 import CreatorPage from "./view/Creator/CreatorPage.vue";
 import GuanZhuGuanLi from "./view/Creator/GuanZhuGuanLi.vue";
 import FaBuShiPin from "./view/Creator/FaBuShiPin.vue";
+import Chat from "./components/Chat.vue";
 
 
 const routes = [
@@ -78,6 +79,12 @@ const routes = [
         path: '/UserProfile',
         component: UserProfile
     },
+    {
+        path: '/Chat',
+        component: Chat
+    },
+
+
     {
         path: '/creator',
         name: 'creator',

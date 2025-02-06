@@ -37,16 +37,23 @@
 
 
         <el-popover
+            :width="800"
 
-            :width="200"
-            content="this is content, this is content, this is content"
-            placement="top-start"
+            placement="bottom-start"
+            style="height: 20vh"
             title="Title"
-            trigger="hover"
+            trigger="click"
         >
+          <template #default>
+
+            <message></message>
+
+          </template>
           <template #reference>
             <el-button class="m-1">私信</el-button>
           </template>
+
+
         </el-popover>
         <el-popover
 
@@ -56,6 +63,7 @@
             title="Title"
             trigger="hover"
         >
+
           <template #reference>
             <el-button class="m-1" @click="router.push('/creator')">投稿</el-button>
           </template>
@@ -83,9 +91,9 @@
         <el-row :justify="'center'" style="background-color: pink">
           <el-col span="20" style="">
             <el-button class="m-2" @click="$router.push(`/user/${userStore.user.data.userId}`)">个人中心</el-button>
-            <el-button class="m-2">我的喜欢</el-button>
-            <el-button class="m-2">我的收藏</el-button>
-            <el-button class="m-2">历史记录</el-button>
+            <!--            <el-button class="m-2">我的喜欢</el-button>-->
+            <!--            <el-button class="m-2">我的收藏</el-button>-->
+            <!--            <el-button class="m-2">历史记录</el-button>-->
             <el-button class="m-2" @click="logout()">退出登录</el-button>
           </el-col>
         </el-row>
@@ -158,7 +166,8 @@ import SearchBar from "./SearchBar.vue";
 import {ElMessage} from "element-plus"; // 假设你使用的是Element Plus组件库
 import {useRouter} from 'vue-router';
 import userApi from '../../api/userApi'; // 假设这是你的API模块的路径
-import {useUserStore} from '../../stores/userStore'; // 假设你使用的是Pinia或Vuex
+import {useUserStore} from '../../stores/userStore';
+import Message from "./message.vue"; // 假设你使用的是Pinia或Vuex
 
 const router = useRouter();
 
